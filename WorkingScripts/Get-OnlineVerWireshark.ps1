@@ -45,49 +45,58 @@ function Get-OnlineVerWireshark {
                    Position=2)]
         [switch]$Quiet
     ) 
-
-    $hashtable = [ordered]@{
-        'Software_Name'    = $softwareName
-        'Software_URL'     = $uri
-        'Online_Version'   = 'UNKNOWN' 
-        'Online_Date'      = 'UNKNOWN'
-        'Download_URL_x86' = 'UNKNOWN'
-        'Download_URL_x64' = 'UNKNOWN'
-    }
+    Begin
+    {
+        $hashtable = [ordered]@{
+            'Software_Name'    = $softwareName
+            'Software_URL'     = $uri
+            'Online_Version'   = 'UNKNOWN' 
+            'Online_Date'      = 'UNKNOWN'
+            'Download_URL_x86' = 'UNKNOWN'
+            'Download_URL_x64' = 'UNKNOWN'
+        }
     
-    $swObject = New-Object -TypeName PSObject -Property $hashtable
+        $swObject = New-Object -TypeName PSObject -Property $hashtable
+    }
 
-    try
+    Process
     {
-        [xml]$xmlContent = Invoke-WebRequest -Uri $uri
-    }
-    catch
-    {
-        $message = ("Line {0} : {1}" -f $_.InvocationInfo.ScriptLineNumber, $_.exception.message)
-        Write-Warning $message
-    }
-    finally
-    {
-        if ($XMLContent)
+        try
         {
-            $swObject.Online_Version = $XMLContent.XML_DIZ_INFO.Program_Info.Program_Version
-            $swObject.Online_Date = $XMLContent.XML_DIZ_INFO.Program_Info.Program_Release_Month + 
-                                      '-' +
-                                      $XMLContent.XML_DIZ_INFO.Program_Info.Program_Release_Day +
-                                      '-' +
-                                      $XMLContent.XML_DIZ_INFO.Program_Info.Program_Release_Year
-            $swObject.Download_URL_x64 = $XMLContent.XML_DIZ_INFO.Web_Info.Download_URLs.Primary_Download_URL
-            $swObject.Download_URL_x86 = $($swObject.Download_URL_x64).replace('64','32')
+            [xml]$xmlContent = Invoke-WebRequest -Uri $uri
+        }
+        catch
+        {
+            $message = $("Line {0} : {1}" -f $_.InvocationInfo.ScriptLineNumber, $_.exception.message)
+            $swObject | Add-Member -MemberType NoteProperty -Name 'ERROR' -Value $message
+        }
+        finally
+        {
+            if ($XMLContent)
+            {
+                $swObject.Online_Version = $XMLContent.XML_DIZ_INFO.Program_Info.Program_Version
+                $swObject.Online_Date = $XMLContent.XML_DIZ_INFO.Program_Info.Program_Release_Month + 
+                                          '-' +
+                                          $XMLContent.XML_DIZ_INFO.Program_Info.Program_Release_Day +
+                                          '-' +
+                                          $XMLContent.XML_DIZ_INFO.Program_Info.Program_Release_Year
+                $swObject.Download_URL_x64 = $XMLContent.XML_DIZ_INFO.Web_Info.Download_URLs.Primary_Download_URL
+                $swObject.Download_URL_x86 = $($swObject.Download_URL_x64).replace('64','32')
+            }
         }
     }
 
-    # Output to Host
-    if ($Quiet)
+    End
     {
-        Return $swObject.Online_Version
+        # Output to Host
+        if ($Quiet)
+        {
+            Return $swObject.Online_Version
+        }
+        else
+        {
+            Return $swobject
+        }
     }
-    else
-    {
-        Return $swobject
-    }
+
 } # END Function Get-OnlineVerWireshark
