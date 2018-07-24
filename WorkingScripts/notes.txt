@@ -1,0 +1,21 @@
+Notes:
+
+Firefox:
+	Always Latest Release Notes
+	https://www.mozilla.org/en-US/firefox/notes/
+
+PuTTY:
+	Changelog
+	https://www.chiark.greenend.org.uk/~sgtatham/putty/changes.html
+	
+	Latest
+	https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
+	
+	https://www.chiark.greenend.org.uk/~sgtatham/putty/docs.html
+	
+Adobe Reader DC:
+
+Java SE 8
+
+Java SE 8 DK 
+
