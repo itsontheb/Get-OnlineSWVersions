@@ -3,6 +3,8 @@ Notes:
 Firefox:
 	Always Latest Release Notes
 	https://www.mozilla.org/en-US/firefox/notes/
+	JSON for latest releases
+	'https://product-details.mozilla.org/1.0/firefox_versions.json'
 
 PuTTY:
 	Changelog
@@ -13,9 +15,41 @@ PuTTY:
 	
 	https://www.chiark.greenend.org.uk/~sgtatham/putty/docs.html
 	
+	Releases
+	'https://www.chiark.greenend.org.uk/~sgtatham/putty/releases/'
+	$html.ParsedHtml.body.outerText -split '\r\n'
+	
 Adobe Reader DC:
+ftp://ftp.adobe.com/pub/adobe/reader/win/AcrobatDC/
+regex = '[^1-9,0]'
 
 Java SE 8
+$URI = 'https://javadl-esd-secure.oracle.com/update/baseline.version'
+"http://javadl-esd.sun.com/update/$jre_Baseline/map-m-$jre_Baseline.xml"
+[ValidateSet("1.7.0", "1.8.0", "10.0")]
+Regex: "(?<P1>\d+).(?<P2>\d+).(?<P3>\d+)_(?<P4>\d+)"
 
 Java SE 8 DK 
 
+Flash:
+version Regex: '\d+\.\d+\.\d+\.\d+'
+
+Wireshark
+'https://www.wireshark.org/wireshark-pad.xml'
+
+7-ZIP
+'http://www.7-zip.org/history.txt'
+Cheated the .Content read
+
+Notepad++
+https://notepad-plus-plus.org/download
+Read parsedhtml.title
+
+Add in functions for:
+	1.) Getting a websites cert
+	2.) Gett a websites root cert
+	3.) Importing a 509Cert to the cert store
+# https://stackoverflow.com/questions/22233702/how-to-download-the-ssl-certificate-from-a-website-using-powershell
+	$request = [System.Net.HttpWebRequest]::Create($uri)
+	$request.GetResponse().Dispose()
+	$request.ServicePoint.Certificate
