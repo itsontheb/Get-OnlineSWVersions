@@ -19,3 +19,17 @@ Java SE 8
 
 Java SE 8 DK 
 
+
+
+
+
+Firefox Links
+Download Current Firefox (x86)
+https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US
+
+All Languages Firefox Downloads
+https://www.mozilla.org/en-US/firefox/all/
+
+Firefox Enterprise Docs
+https://support.mozilla.org/en-US/products/firefox-enterprise
+https://www.mozilla.org/en-US/firefox/organizations/
