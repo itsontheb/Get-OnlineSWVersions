@@ -31,21 +31,6 @@ Regex: "(?<P1>\d+).(?<P2>\d+).(?<P3>\d+)_(?<P4>\d+)"
 
 Java SE 8 DK 
 
-<<<<<<< HEAD
-
-
-
-
-Firefox Links
-Download Current Firefox (x86)
-https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US
-
-All Languages Firefox Downloads
-https://www.mozilla.org/en-US/firefox/all/
-
-Firefox Enterprise Docs
-https://support.mozilla.org/en-US/products/firefox-enterprise
-https://www.mozilla.org/en-US/firefox/organizations/
 =======
 Flash:
 version Regex: '\d+\.\d+\.\d+\.\d+'
@@ -69,4 +54,4 @@ Add in functions for:
 	$request = [System.Net.HttpWebRequest]::Create($uri)
 	$request.GetResponse().Dispose()
 	$request.ServicePoint.Certificate
->>>>>>> 0fd9f126388ff20e6df1eb060fca541c1385f9d3
+
