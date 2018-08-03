@@ -77,7 +77,7 @@ function Get-OnlineVerAdobeFlash
         try
         {
             # Get Major Version for Flash
-            [xml]$FlashMajorVersion = Invoke-WebRequest -Uri "$($uri)/current1major.xml"
+            [xml]$FlashMajorVersion = Invoke-WebRequest -Uri "$($uri)/currentmajor.xml"
             $Version = $FlashMajorVersion.version.player.major
 
             # Get Minor Version
