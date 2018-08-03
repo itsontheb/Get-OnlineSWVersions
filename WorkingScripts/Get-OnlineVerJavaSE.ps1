@@ -285,6 +285,7 @@ function Get-OnlineVerJavaSE
         # Output to Host
         if ($Quiet)
         {
+            Write-Verbose -Message '$Quiet was specified. Returning just the version'
             Return $swObject.Online_Version
         }
         elseif ($Loud)

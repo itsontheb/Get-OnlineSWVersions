@@ -43,12 +43,12 @@ function Get-OnlineVerTEMPLATE
         $Quiet
     )
 
-    # Initial Variables
-    $SoftwareName = '[TEMPLATESOFTWARE]'
-    $URI = '[TEMPLATESOFTWARE_URL]'
-
     begin
     {
+        # Initial Variables
+        $SoftwareName = '[TEMPLATESOFTWARE]'
+        $URI = '[TEMPLATESOFTWARE_URL]'
+            
         $hashtable = [ordered]@{
             'Software_Name'    = $softwareName
             'Software_URL'     = $uri
@@ -66,16 +66,18 @@ function Get-OnlineVerTEMPLATE
     {
         try
         {
+            Write-Verbose -Message "Attempting to pull info from the below URL: `n $URI"
 
         }
         catch
         {
+            Write-Verbose -Message "Error accessing the below URL: `n $URI"
             $message = $("Line {0} : {1}" -f $_.InvocationInfo.ScriptLineNumber, $_.exception.message)
             $swObject | Add-Member -MemberType NoteProperty -Name 'ERROR' -Value $message
         }
         finally
         {
-        
+            Write-Verbose -Message 'Write to $swObject the newly gained information.'
         }
     }
 
@@ -84,6 +86,7 @@ function Get-OnlineVerTEMPLATE
         # Output to Host
         if ($Quiet)
         {
+            Write-Verbose -Message '$Quiet was specified. Returning just the version'
             Return $swObject.Online_Version
         }
         else

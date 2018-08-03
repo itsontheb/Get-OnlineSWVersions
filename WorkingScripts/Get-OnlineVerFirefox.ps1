@@ -82,17 +82,10 @@ function Get-OnlineVerFirefox
     {
         try
         {
+            Write-Verbose -Message "Attempting to pull info from the below URL: `n $URI"
+
             $rawReq = Invoke-WebRequest -Uri $URI
             $json = $rawReq | ConvertFrom-Json
-
-            switch ($FFType)
-            {
-                'ESR'     { $swObject.Online_Version = $json.FIREFOX_ESR }
-                'Nightly' { $swObject.Online_Version = $json.FIREFOX_NIGHTLY }
-                'Main'    { $swObject.Online_Version = $json.LATEST_FIREFOX_VERSION
-                            $swObject.Download_URL_x86 = 'https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US'
-                            $swObject.Download_URL_x64 = 'https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US'}
-            }
         }
         catch
         {
@@ -101,6 +94,16 @@ function Get-OnlineVerFirefox
         }
         finally
         {
+            Write-Verbose -Message 'Write to $swObject the newly gained information.'
+            switch ($FFType)
+            {
+                'ESR'     { $swObject.Online_Version = $json.FIREFOX_ESR }
+                'Nightly' { $swObject.Online_Version = $json.FIREFOX_NIGHTLY }
+                'Main'    { $swObject.Online_Version = $json.LATEST_FIREFOX_VERSION
+                            $swObject.Download_URL_x86 = 'https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US'
+                            $swObject.Download_URL_x64 = 'https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US'}
+            }
+
             if ($swObject.Online_Date -Match 'UNKNOWN')
             {
                 $swObject.Online_Date = "$(Get-Date -Format FileDate)"
@@ -114,6 +117,7 @@ function Get-OnlineVerFirefox
         # Output to Host
         if ($Quiet)
         {
+            Write-Verbose -Message '$Quiet was specified. Returning just the version'
             Return $swObject.Online_Version
         }
         else

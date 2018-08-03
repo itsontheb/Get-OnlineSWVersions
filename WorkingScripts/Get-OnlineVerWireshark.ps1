@@ -37,12 +37,12 @@ function Get-OnlineVerWireshark {
         [switch]$Quiet
     )
 
-    # Initial Variables
-    $SoftwareName = 'Wireshark'
-    $URI = 'https://www.wireshark.org/wireshark-pad.xml'
-
     Begin
     {
+        # Initial Variables
+        $SoftwareName = 'Wireshark'
+        $URI = 'https://www.wireshark.org/wireshark-pad.xml'
+
         $hashtable = [ordered]@{
             'Software_Name'    = $softwareName
             'Software_URL'     = $uri
