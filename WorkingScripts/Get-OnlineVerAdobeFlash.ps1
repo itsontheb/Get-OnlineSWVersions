@@ -9,11 +9,17 @@
     for both x68 and x64 versions. It then outputs the information as a
     PSObject to the Host.
 .EXAMPLE
-    PS:> Get-OnlineVerFlash -Quiet
+    PS C:\> Get-OnlineVerFlash -Quiet
 .INPUTS
+    -FlashType
+        Specify the type of Adobe Flash to find the current version. 
+        Choose between ActiveX, Plugin and Pepper. The default is 
+        'ActiveX'.
+    
     -Quiet
         Use of this parameter will output just the current version of
-        Flash instead of the entire object.
+        Flash instead of the entire object. It will always be the
+        last parameter.
 .OUTPUTS
     An object containing the following:
         Software Name: Name of the software
@@ -22,10 +28,11 @@
         Online Date: The date the version was updated
         Download URL x86: Download URL for the win32 version
         Download URL x64: Download URL for the win64 version
+    
     If -Quiet is specified then just the value of 'Online Version'
     will be displayed.
 .NOTES
-    Resources:
+    Resources/Credits:
         https://www.reddit.com/r/PowerShell/comments/3tgr2m/get_current_versions_of_adobe_products/
 #> 
 function Get-OnlineVerAdobeFlash
@@ -33,19 +40,7 @@ function Get-OnlineVerAdobeFlash
     [cmdletbinding()]
     param (
         [Parameter(Mandatory=$false, 
-                   Position=0)]
-        [Alias("SW")]
-        [string]
-        $SoftwareName = 'Adobe Flash Player',
-
-        [Parameter(Mandatory=$false, 
-                   Position=1)]
-        [Alias("URL")]
-        [string]
-        $URI = 'http://fpdownload2.macromedia.com/pub/flashplayer/update/current/sau',
-
-        [Parameter(Mandatory=$false, 
-                       Position=2)]
+                       Position=0)]
         [ValidateSet(
             'ActiveX',
             'Plugin',
@@ -53,9 +48,13 @@ function Get-OnlineVerAdobeFlash
         )]
         $FlashType = 'ActiveX',
         [Parameter(Mandatory=$false, 
-                   Position=2)]
+                   Position=1)]
         [switch]$Quiet
     )
+
+    # Initial Variables
+    $SoftwareName = 'Adobe Flash Player'
+    $URI = 'http://fpdownload2.macromedia.com/pub/flashplayer/update/current/sau'
 
 
     Begin

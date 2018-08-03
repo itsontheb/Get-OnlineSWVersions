@@ -14,8 +14,8 @@
 .INPUTS
     -FFType
         Specify the Type of Firefox to check for. Choose from the main 
-        build, the ESR or the Nightly.
-
+        build, the ESR or the Nightly. It defaults to the Main build.
+    
     -Quiet
         Use of this parameter will output just the current version of
         Firefox instead of the entire object.
@@ -27,12 +27,10 @@
         Online Date: The date the version was updated
         Download URL x86: Download URL for the win32 version
         Download URL x64: Download URL for the win64 version
+    
     If -Quiet is specified then just the value of 'Online Version'
     will be displayed.
 .NOTES
-    While there are other params available they should not be utilized as they
-    are placeholders for templatization and ease of use if anything changes.
-
     Helpful URLs
         All Firefox Language Downloads
             https://www.mozilla.org/en-US/firefox/all/
@@ -48,16 +46,6 @@ function Get-OnlineVerFirefox
     param (
         [Parameter(Mandatory=$false, 
                    Position=0)]
-        [Alias("SW")]
-        [string]
-        $SoftwareName = 'Mozilla Firefox',
-
-        [Parameter(Mandatory=$false, 
-                   Position=1)]
-        [Alias("URL")]
-        [string]
-        $URI = 'https://product-details.mozilla.org/1.0/firefox_versions.json',
-
         [ValidateSet(
             'Main',
             'ESR',
@@ -66,10 +54,14 @@ function Get-OnlineVerFirefox
         $FFType = 'Main',
 
         [Parameter(Mandatory=$false, 
-                   Position=2)]
+                   Position=1)]
         [switch]
         $Quiet
     )
+
+    # Initial Variables
+    $SoftwareName = 'Mozilla Firefox'
+    $URI = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
 
     begin
     {

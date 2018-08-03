@@ -1,24 +1,36 @@
 ﻿<#
 .Synopsis
-   Short description
+    Queries [TEMPLATESOFTWARE]'s Website for the current version of
+    [TEMPLATESOFTWARE] and returns the version, date updated, and
+    download URLs if available.
 .DESCRIPTION
-   Long description
+    Utilizes Invoke-WebRequest to query [TEMPLATESOFTWARE]'s [PAGE] and
+    pulls out the Version, Update Date and Download URLs for both
+    x68 and x64 versions. It then outputs the information as a
+    PSObject to the Host.
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   PS C:\> Get-OnlineVer[TEMPLATESOFTWARE] -Quiet
 .INPUTS
-   Inputs to this cmdlet (if any)
+    -Quiet
+        Use of this parameter will output just the current version of
+        [TEMPLATESOFTWARE] instead of the entire object. It will always be the
+        last parameter.
 .OUTPUTS
-   Output from this cmdlet (if any)
+    An object containing the following:
+        Software Name: Name of the software
+        Software URL: The URL info was sourced from
+        Online Version: The current version found
+        Online Date: The date the version was updated
+        Download URL x86: Download URL for the win32 version
+        Download URL x64: Download URL for the win64 version
+    
+    If -Quiet is specified then just the value of 'Online Version'
+    will be displayed.
 .NOTES
-   General notes
-.COMPONENT
-   The component this cmdlet belongs to
-.ROLE
-   The role this cmdlet belongs to
-.FUNCTIONALITY
-   The functionality that best describes this cmdlet
+    Resources/Credits:
+
+    Helpful URLs:
+
 #>
 
 function Get-OnlineVerTEMPLATE
@@ -27,21 +39,13 @@ function Get-OnlineVerTEMPLATE
     param (
         [Parameter(Mandatory=$false, 
                    Position=0)]
-        [Alias("SW")]
-        [string]
-        $SoftwareName = 'TEMPLATE',
-
-        [Parameter(Mandatory=$false, 
-                   Position=1)]
-        [Alias("URL")]
-        [string]
-        $URI = 'TEMPLATE',
-
-        [Parameter(Mandatory=$false, 
-                   Position=2)]
         [switch]
         $Quiet
     )
+
+    # Initial Variables
+    $SoftwareName = '[TEMPLATESOFTWARE]'
+    $URI = '[TEMPLATESOFTWARE_URL]'
 
     begin
     {

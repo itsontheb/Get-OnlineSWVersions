@@ -1,24 +1,32 @@
 ﻿<#
 .Synopsis
-   Query Mozilla's Website for the current version of Mozilla Firefox and
+   Query Oracle's Website for the current version of Java SE and
    returns the version, dated updated, URL info obtained from and the
-   download URLs for x64 & x86 version.
+   download URLs for x64 & x86 version. Other information can be provided
+   if specified.
 .DESCRIPTION
-   Invokes a Web Request to Mozilla's Website to contain the contents of a
-   JSON File. Based on the user input it selects the Main Build, ESR or Nightly
-   Build Version and returns it back to the Host as a PSObject. If Quiet is 
-   specified then just the version is returned with no additonal information.
-   If the Firefox Type is not specified it defaults to the Main build.
+    Invokes a series of Web Requests to Oracles website to trace the desired
+    baseline version's (ie Java 8, 9 or 10) current version among other
+    information such as download URLs and release date.
+
+    There is work with both iterating through HTML Tables for the release
+    date and plenty of walking XMLs for various pieces of information.
+    More information can be provided with the -Loud parameter. If the
+    '-ReqBaseline' is not specified then 1.8.0 is selected by default.
 .EXAMPLE
-   PS C:\> Get-OnlineVerFirefox -FFType 'ESR' -Quiet
+   PS C:\> Get-OnlineVerJavaSE -ReqBasline '10.0' -Quiet
 .INPUTS
-    -FFType
-        Specify the Type of Firefox to check for. Choose from the main 
-        build, the ESR or the Nightly.
+    -ReqBasline
+        Specify the Java Baseline to check for. Choose from the 1.7.0, 
+        1.8.0 or 10.0.
 
     -Quiet
         Use of this parameter will output just the current version of
-        Firefox instead of the entire object.
+        Java for the requested baseline instead of the entire object.
+
+    -Loud
+        Use of this parameter will output a ton of various information
+        about the requested version of Java. 
 .OUTPUTS
     An object containing the following:
         Software Name: Name of the software
@@ -27,22 +35,20 @@
         Online Date: The date the version was updated
         Download URL x86: Download URL for the win32 version
         Download URL x64: Download URL for the win64 version
+
     If -Quiet is specified then just the value of 'Online Version'
     will be displayed.
-.NOTES
-    While there are other params available they should not be utilized as they
-    are placeholders for templatization and ease of use if anything changes.
 
-    Helpful URLs
-        All Firefox Language Downloads
-            https://www.mozilla.org/en-US/firefox/all/
-        Firefox ESR 
-            https://www.mozilla.org/en-US/firefox/organizations/
-        Configure Firefox in the Enterprise
-            https://support.mozilla.org/en-US/products/firefox-enterprise
-    CREDIT:
-    https://github.com/auberginehill/java-update/blob/master/Java-Update.ps1
-    https://gist.github.com/midnightfreddie/69d25ddf5ed784d75c1180f12bee84a6
+    If -Loud is specified information such as the different version numbers
+    will be provided for the specified version, uninstaller URL, Description
+    and 'More Info' URL.
+.NOTES
+    Resources/Credits:
+        https://github.com/auberginehill/java-update/blob/master/Java-Update.ps1
+        https://gist.github.com/midnightfreddie/69d25ddf5ed784d75c1180f12bee84a6
+    Helpful URLs:
+        https://javadl-esd-secure.oracle.com/update/baseline.version
+        https://www.java.com/en/download/faq/release_dates.xml        
 #>
 
 function Get-OnlineVerJavaSE
@@ -51,16 +57,6 @@ function Get-OnlineVerJavaSE
     param (
         [Parameter(Mandatory=$false, 
                    Position=0)]
-        [Alias("SW")]
-        [string]
-        $SoftwareName = 'Java SE',
-
-        [Parameter(Mandatory=$false, 
-                   Position=1)]
-        [Alias("URL")]
-        [string]
-        $URI = 'https://javadl-esd-secure.oracle.com/update/baseline.version',
-
         [ValidateSet(
             '1.7.0', 
             '1.8.0', 
@@ -69,15 +65,19 @@ function Get-OnlineVerJavaSE
         $ReqBaseline = '1.8.0',
 
         [Parameter(Mandatory=$false, 
-                   Position=2)]
+                   Position=1)]
         [switch]
         $Quiet,
 
         [Parameter(Mandatory=$false, 
-                   Position=3)]
+                   Position=2)]
         [switch]
         $Loud
     )
+
+    # Initial Variables
+    $SoftwareName = 'Java SE'
+    $URI = 'https://javadl-esd-secure.oracle.com/update/baseline.version'
 
     begin
     {
