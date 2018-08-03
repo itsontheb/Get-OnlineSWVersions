@@ -51,8 +51,7 @@ catch [System.Net.WebException]
     Return 'Exiting without checking for latest Java version numbers (Step 2)'
 }
 
-# Update Chart
-$updateChart = $javaMap.SelectNodes("/java-update-map/mapping")
+
 # Check for java_update_chart.csv later
 
 # Step 3
