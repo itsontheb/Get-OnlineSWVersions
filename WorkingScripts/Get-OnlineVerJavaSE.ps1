@@ -40,6 +40,9 @@
             https://www.mozilla.org/en-US/firefox/organizations/
         Configure Firefox in the Enterprise
             https://support.mozilla.org/en-US/products/firefox-enterprise
+    CREDIT:
+    https://github.com/auberginehill/java-update/blob/master/Java-Update.ps1
+    https://gist.github.com/midnightfreddie/69d25ddf5ed784d75c1180f12bee84a6
 #>
 
 function Get-OnlineVerJavaSE
