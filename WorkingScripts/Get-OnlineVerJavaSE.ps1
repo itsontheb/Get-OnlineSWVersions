@@ -75,12 +75,12 @@ function Get-OnlineVerJavaSE
         $Loud
     )
 
-    # Initial Variables
-    $SoftwareName = 'Java SE'
-    $URI = 'https://javadl-esd-secure.oracle.com/update/baseline.version'
-
     begin
     {
+        # Initial Variables
+        $SoftwareName = 'Java SE'
+        $URI = 'https://javadl-esd-secure.oracle.com/update/baseline.version'
+
         $hashtable = [ordered]@{
             'Software_Name'    = $softwareName
             'Software_URL'     = $uri

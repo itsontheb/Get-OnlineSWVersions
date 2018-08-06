@@ -59,12 +59,12 @@ function Get-OnlineVerFirefox
         $Quiet
     )
 
-    # Initial Variables
-    $SoftwareName = 'Mozilla Firefox'
-    $URI = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
-
     begin
     {
+        # Initial Variables
+        $SoftwareName = 'Mozilla Firefox'
+        $URI = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
+
         $hashtable = [ordered]@{
             'Software_Name'    = $softwareName
             'Software_URL'     = $uri
