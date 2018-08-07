@@ -1,19 +1,19 @@
 ﻿<#
 .Synopsis
-    Queries [TEMPLATESOFTWARE]'s Website for the current version of
-    [TEMPLATESOFTWARE] and returns the version, date updated, and
+    Queries Notepad++'s Website for the current version of
+    Notepad++ and returns the version, date updated, and
     download URLs if available.
 .DESCRIPTION
-    Utilizes Invoke-WebRequest to query [TEMPLATESOFTWARE]'s [PAGE] and
-    pulls out the Version, Update Date and Download URLs for both
-    x68 and x64 versions. It then outputs the information as a
-    PSObject to the Host.
+    Utilizes Invoke-WebRequest to query Notepad++'s Current Version 
+    Page and pulls out the Version, Update Date and Download URLs 
+    for both x68 and x64 versions. It then outputs the information
+     as a PSObject to the Host.
 .EXAMPLE
-   PS C:\> Get-OnlineVer[TEMPLATESOFTWARE] -Quiet
+   PS C:\> Get-OnlineVerNotepadPP -Quiet
 .INPUTS
     -Quiet
         Use of this parameter will output just the current version of
-        [TEMPLATESOFTWARE] instead of the entire object. It will always be the
+        Notepad++ instead of the entire object. It will always be the
         last parameter.
 .OUTPUTS
     An object containing the following:
@@ -32,6 +32,8 @@
     Helpful URLs:
         Notepad++ Repository
             https://notepad-plus-plus.org/repository/
+        Notepad++ Current Version
+            https://notepad-plus-plus.org/download
 #>
 
 function Get-OnlineVerNotepadPP
@@ -145,5 +147,3 @@ function Get-OnlineVerNotepadPP
         }
     }
 } # END Function Get-OnlineVerNotepadPP
-
-Get-OnlineVerNotepadPP
