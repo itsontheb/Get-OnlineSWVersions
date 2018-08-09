@@ -298,5 +298,3 @@ function Get-OnlineVerJavaSE
         }
     }
 } # END Function Get-OnlineVerJavaSE
-
-Get-OnlineVerJavaSE -ReqBaseline 10.0
