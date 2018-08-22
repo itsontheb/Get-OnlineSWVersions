@@ -1,19 +1,19 @@
 ﻿<#
 .Synopsis
-    Queries [TEMPLATESOFTWARE]'s Website for the current version of
-    [TEMPLATESOFTWARE] and returns the version, date updated, and
+    Queries PuTTY's Website for the current version of
+    PuTTY and returns the version, date updated, and
     download URLs if available.
 .DESCRIPTION
-    Utilizes Invoke-WebRequest to query [TEMPLATESOFTWARE]'s [PAGE] and
+    Utilizes Invoke-WebRequest to query PuTTY's release page and
     pulls out the Version, Update Date and Download URLs for both
     x68 and x64 versions. It then outputs the information as a
     PSObject to the Host.
 .EXAMPLE
-   PS C:\> Get-OnlineVer[TEMPLATESOFTWARE] -Quiet
+   PS C:\> Get-OnlineVerPuTTY -Quiet
 .INPUTS
     -Quiet
         Use of this parameter will output just the current version of
-        [TEMPLATESOFTWARE] instead of the entire object. It will always be the
+        PuTTY instead of the entire object. It will always be the
         last parameter.
 .OUTPUTS
     An object containing the following:
@@ -33,7 +33,7 @@
 
 #>
 
-function Get-OnlineVerTEMPLATE
+function Get-OnlineVerPuTTY
 {
     [cmdletbinding()]
     param (
@@ -46,9 +46,12 @@ function Get-OnlineVerTEMPLATE
     begin
     {
         # Initial Variables
-        $SoftwareName = '[TEMPLATESOFTWARE]'
-        $URI = '[TEMPLATESOFTWARE_URL]'
-            
+        $SoftwareName = 'PuTTY'
+        $URI = 'https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html'
+        $versionRegex = [regex]"\((.*)\)"
+        $dateRegex = '\d{4}-\d{2}-\d{2}'
+        $desiredString = 'released on'
+
         $hashtable = [ordered]@{
             'Software_Name'    = $softwareName
             'Software_URL'     = $uri
@@ -64,10 +67,13 @@ function Get-OnlineVerTEMPLATE
 
     Process
     {
+        # Get the SW Version
         try
         {
             Write-Verbose -Message "Attempting to pull info from the below URL: `n $URI"
+            $rawReq = Invoke-WebRequest -Uri $URI
 
+            $currentVersion = [regex]::match($html.ParsedHtml.title, $versionRegex).Groups[1]            
         }
         catch
         {
@@ -77,8 +83,36 @@ function Get-OnlineVerTEMPLATE
         }
         finally
         {
-            Write-Verbose -Message 'Write to $swObject the newly gained information.'
+            If ($currentVersion)
+            {
+                # Download URLs
+                $dlURL_x86 = "https://the.earth.li/~sgtatham/putty/latest/w32/putty-$currentVersion-installer.msi"
+                $dlURL_x64 = "https://the.earth.li/~sgtatham/putty/latest/w64/putty-64bit-$currentVersion-installer.msi"            
+            
+                Write-Verbose -Message 'Write to $swObject the newly gained information.'
+                $swObject.Online_Version = $currentVersion
+                $swObject.Download_URL_x86 = $dlURL_x86
+                $swObject.Download_URL_x64 = $dlURL_x64
+            }
         }
+
+        # Get release date
+        if ($rawReq)
+        {
+            $itMatches = @()
+            $p = $rawReq.ParsedHtml.getElementsByTagName("p")
+            Foreach ($item in $p)
+            {
+                $itemMatch = $item.outerText -match $desiredString
+                if ($itemMatch)
+                {
+                    $itMatches += $item.outerText
+                }
+            }
+
+            $swObject.Online_Date = ( ($itMatches[0].Replace('.','')).split(' ') -match $dateRegex )[0]
+        }
+
     }
 
     End
@@ -94,4 +128,4 @@ function Get-OnlineVerTEMPLATE
             Return $swobject
         }
     }
-} # END Function Get-OnlineVerTEMPLATE
+} # END Function Get-OnlineVerPuTTY

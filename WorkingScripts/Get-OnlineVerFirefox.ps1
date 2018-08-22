@@ -14,8 +14,8 @@
 .INPUTS
     -FFType
         Specify the Type of Firefox to check for. Choose from the main 
-        build, the ESR or the Nightly.
-
+        build, the ESR or the Nightly. It defaults to the Main build.
+    
     -Quiet
         Use of this parameter will output just the current version of
         Firefox instead of the entire object.
@@ -27,12 +27,10 @@
         Online Date: The date the version was updated
         Download URL x86: Download URL for the win32 version
         Download URL x64: Download URL for the win64 version
+    
     If -Quiet is specified then just the value of 'Online Version'
     will be displayed.
 .NOTES
-    While there are other params available they should not be utilized as they
-    are placeholders for templatization and ease of use if anything changes.
-
     Helpful URLs
         All Firefox Language Downloads
             https://www.mozilla.org/en-US/firefox/all/
@@ -48,16 +46,6 @@ function Get-OnlineVerFirefox
     param (
         [Parameter(Mandatory=$false, 
                    Position=0)]
-        [Alias("SW")]
-        [string]
-        $SoftwareName = 'Mozilla Firefox',
-
-        [Parameter(Mandatory=$false, 
-                   Position=1)]
-        [Alias("URL")]
-        [string]
-        $URI = 'https://product-details.mozilla.org/1.0/firefox_versions.json',
-
         [ValidateSet(
             'Main',
             'ESR',
@@ -66,13 +54,17 @@ function Get-OnlineVerFirefox
         $FFType = 'Main',
 
         [Parameter(Mandatory=$false, 
-                   Position=2)]
+                   Position=1)]
         [switch]
         $Quiet
     )
 
     begin
     {
+        # Initial Variables
+        $SoftwareName = 'Mozilla Firefox'
+        $URI = 'https://product-details.mozilla.org/1.0/firefox_versions.json'
+
         $hashtable = [ordered]@{
             'Software_Name'    = $softwareName
             'Software_URL'     = $uri
@@ -90,17 +82,10 @@ function Get-OnlineVerFirefox
     {
         try
         {
+            Write-Verbose -Message "Attempting to pull info from the below URL: `n $URI"
+
             $rawReq = Invoke-WebRequest -Uri $URI
             $json = $rawReq | ConvertFrom-Json
-
-            switch ($FFType)
-            {
-                'ESR'     { $swObject.Online_Version = $json.FIREFOX_ESR }
-                'Nightly' { $swObject.Online_Version = $json.FIREFOX_NIGHTLY }
-                'Main'    { $swObject.Online_Version = $json.LATEST_FIREFOX_VERSION
-                            $swObject.Download_URL_x86 = 'https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US'
-                            $swObject.Download_URL_x64 = 'https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US'}
-            }
         }
         catch
         {
@@ -109,6 +94,16 @@ function Get-OnlineVerFirefox
         }
         finally
         {
+            Write-Verbose -Message 'Write to $swObject the newly gained information.'
+            switch ($FFType)
+            {
+                'ESR'     { $swObject.Online_Version = $json.FIREFOX_ESR }
+                'Nightly' { $swObject.Online_Version = $json.FIREFOX_NIGHTLY }
+                'Main'    { $swObject.Online_Version = $json.LATEST_FIREFOX_VERSION
+                            $swObject.Download_URL_x86 = 'https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US'
+                            $swObject.Download_URL_x64 = 'https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US'}
+            }
+
             if ($swObject.Online_Date -Match 'UNKNOWN')
             {
                 $swObject.Online_Date = "$(Get-Date -Format FileDate)"
@@ -122,6 +117,7 @@ function Get-OnlineVerFirefox
         # Output to Host
         if ($Quiet)
         {
+            Write-Verbose -Message '$Quiet was specified. Returning just the version'
             Return $swObject.Online_Version
         }
         else

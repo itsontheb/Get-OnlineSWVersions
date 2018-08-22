@@ -1,19 +1,19 @@
 ﻿<#
 .Synopsis
-    Queries [TEMPLATESOFTWARE]'s Website for the current version of
-    [TEMPLATESOFTWARE] and returns the version, date updated, and
+    Queries PuTTY's Website for the current version of
+    PuTTY and returns the version, date updated, and
     download URLs if available.
 .DESCRIPTION
-    Utilizes Invoke-WebRequest to query [TEMPLATESOFTWARE]'s [PAGE] and
+    Utilizes Invoke-WebRequest to query PuTTY's release page and
     pulls out the Version, Update Date and Download URLs for both
     x68 and x64 versions. It then outputs the information as a
     PSObject to the Host.
 .EXAMPLE
-   PS C:\> Get-OnlineVer[TEMPLATESOFTWARE] -Quiet
+   PS C:\> Get-OnlineVerPuTTY -Quiet
 .INPUTS
     -Quiet
         Use of this parameter will output just the current version of
-        [TEMPLATESOFTWARE] instead of the entire object. It will always be the
+        PuTTY instead of the entire object. It will always be the
         last parameter.
 .OUTPUTS
     An object containing the following:
@@ -33,7 +33,7 @@
 
 #>
 
-function Get-OnlineVerTEMPLATE
+function Get-OnlineVerPuTTY
 {
     [cmdletbinding()]
     param (
@@ -46,9 +46,10 @@ function Get-OnlineVerTEMPLATE
     begin
     {
         # Initial Variables
-        $SoftwareName = '[TEMPLATESOFTWARE]'
-        $URI = '[TEMPLATESOFTWARE_URL]'
-            
+        $SoftwareName = 'PuTTY'
+        $URI = 'https://www.chiark.greenend.org.uk/~sgtatham/putty/releases/'
+        $versions = @()
+
         $hashtable = [ordered]@{
             'Software_Name'    = $softwareName
             'Software_URL'     = $uri
@@ -67,7 +68,18 @@ function Get-OnlineVerTEMPLATE
         try
         {
             Write-Verbose -Message "Attempting to pull info from the below URL: `n $URI"
+            $rawReq = Invoke-WebRequest -Uri $URI
 
+            $trimmedHTML = $rawReq.ParsedHTML.Body.OuterText -split '\r\n'
+            $verHTML = $trimmedHTML -match 'html'
+
+            Foreach ($item in $verHTML)
+            {
+                $version = ($item -split 'html')[0]
+                $versions += $version -replace ".$"
+            }
+
+            $swObject.Online_Version = ($versions | Sort-Object -Descending)[0]
         }
         catch
         {
@@ -94,4 +106,6 @@ function Get-OnlineVerTEMPLATE
             Return $swobject
         }
     }
-} # END Function Get-OnlineVerTEMPLATE
+} # END Function Get-OnlineVerPuTTY
+
+Get-OnlineVerPuTTY

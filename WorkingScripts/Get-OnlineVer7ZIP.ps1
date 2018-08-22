@@ -1,20 +1,20 @@
 ﻿<#
 .Synopsis
-    Queries [TEMPLATESOFTWARE]'s Website for the current version of
-    [TEMPLATESOFTWARE] and returns the version, date updated, and
+    Queries 7-ZIP's Website for the current version of
+    7-ZIP and returns the version, date updated, and
     download URLs if available.
 .DESCRIPTION
-    Utilizes Invoke-WebRequest to query [TEMPLATESOFTWARE]'s [PAGE] and
-    pulls out the Version, Update Date and Download URLs for both
+    Utilizes Invoke-WebRequest to query 7-ZIP's Release History Page
+     and pulls out the Version, Update Date and Download URLs for both
     x68 and x64 versions. It then outputs the information as a
     PSObject to the Host.
 .EXAMPLE
-   PS C:\> Get-OnlineVer[TEMPLATESOFTWARE] -Quiet
+   PS C:\> Get-OnlineVer7ZIP -Quiet
 .INPUTS
     -Quiet
         Use of this parameter will output just the current version of
-        [TEMPLATESOFTWARE] instead of the entire object. It will always be the
-        last parameter.
+        7-ZIP instead of the entire object. It will always 
+        be the last parameter.
 .OUTPUTS
     An object containing the following:
         Software Name: Name of the software
@@ -30,10 +30,11 @@
     Resources/Credits:
 
     Helpful URLs:
-
+        7-ZIP Download URLs
+        https://www.7-zip.org/download.html
 #>
 
-function Get-OnlineVerTEMPLATE
+function Get-OnlineVer7ZIP
 {
     [cmdletbinding()]
     param (
@@ -46,8 +47,10 @@ function Get-OnlineVerTEMPLATE
     begin
     {
         # Initial Variables
-        $SoftwareName = '[TEMPLATESOFTWARE]'
-        $URI = '[TEMPLATESOFTWARE_URL]'
+        $SoftwareName = '7-ZIP'
+        $URI = 'http://www.7-zip.org/history.txt'
+        $verRegex = '\d\d.\d\d'
+        $dateRegex = '\d{4}-\d{2}-\d{2}'
             
         $hashtable = [ordered]@{
             'Software_Name'    = $softwareName
@@ -64,10 +67,12 @@ function Get-OnlineVerTEMPLATE
 
     Process
     {
+        # Get the Version & Release Date
         try
         {
             Write-Verbose -Message "Attempting to pull info from the below URL: `n $URI"
-
+            $rawReq = Invoke-WebRequest -Uri $URI
+            $content = $rawReq.Content -split '-------------------------'
         }
         catch
         {
@@ -77,7 +82,37 @@ function Get-OnlineVerTEMPLATE
         }
         finally
         {
+            $currVerInfo = ($content[0] -split '--------------------')[1].Trim()
+            $currVerInfo = $currVerInfo.Split() | Where { $_ }
+            $version = $currVerInfo[0]
+            $releaseDate = $currVerInfo[1]
+
             Write-Verbose -Message 'Write to $swObject the newly gained information.'
+            if ($version -match $verRegex)
+            {
+                $swObject.Online_Version = $version
+            }
+            else
+            {
+                Write-Verbose -Message 'Version does not match expected regex of ##.##'
+            }
+
+            if ($releaseDate -match $dateRegex)
+            {
+                $swObject.Online_Date = $releaseDate
+            }
+            else
+            {
+                Write-Verbose -Message 'Version does not match expected regex of yyyy-mm-dd'
+            }
+        }
+
+        # Get the Download URLs
+        if ($swObject.Online_Version -ne 'UNKNOWN')
+        {
+            $simpleVer = $version.Replace('.','')
+            $swObject.Download_URL_x86 = "https://www.7-zip.org/a/7z$simpleVer.exe"
+            $swObject.Download_URL_x64 = "https://www.7-zip.org/a/7z$simpleVer-x64.exe"
         }
     }
 
@@ -94,4 +129,4 @@ function Get-OnlineVerTEMPLATE
             Return $swobject
         }
     }
-} # END Function Get-OnlineVerTEMPLATE
+} # END Function Get-OnlineVer7ZIP

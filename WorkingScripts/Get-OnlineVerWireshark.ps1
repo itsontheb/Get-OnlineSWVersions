@@ -9,11 +9,12 @@
     x68 and x64 versions. It then outputs the information as a
     PSObject to the Host.
 .EXAMPLE
-    PS:> Get-OnlineVerWireshark -Quiet
+    PS C:\> Get-OnlineVerWireshark -Quiet
 .INPUTS
     -Quiet
         Use of this parameter will output just the current version of
-        Wireshark instead of the entire object.
+        Wireshark instead of the entire object. It will always be the
+        last parameter.
 .OUTPUTS
     An object containing the following:
         Software Name: Name of the software
@@ -22,31 +23,26 @@
         Online Date: The date the version was updated
         Download URL x86: Download URL for the win32 version
         Download URL x64: Download URL for the win64 version
+   
     If -Quiet is specified then just the value of 'Online Version'
     will be displayed.
 .NOTES
-    Sample Download Links:
-        https://2.na.dl.wireshark.org/win64/Wireshark-win64-2.4.0.exe
-        https://www.wireshark.org/download/win64/all-versions/Wireshark-win64-2.4.0.exe
-        https://www.wireshark.org/download/win32/all-versions/Wireshark-win32-2.4.0.exe
+    No Notes
 #> 
 function Get-OnlineVerWireshark {   
     [cmdletbinding()]
     param (
         [Parameter(Mandatory=$false, 
                    Position=0)]
-        [Alias("SW")]
-        $SoftwareName = 'Wireshark',
-        [Parameter(Mandatory=$false, 
-                   Position=1)]
-        [Alias("URL")]
-        [string]$URI = 'https://www.wireshark.org/wireshark-pad.xml',
-        [Parameter(Mandatory=$false, 
-                   Position=2)]
         [switch]$Quiet
-    ) 
+    )
+
     Begin
     {
+        # Initial Variables
+        $SoftwareName = 'Wireshark'
+        $URI = 'https://www.wireshark.org/wireshark-pad.xml'
+
         $hashtable = [ordered]@{
             'Software_Name'    = $softwareName
             'Software_URL'     = $uri
@@ -63,10 +59,12 @@ function Get-OnlineVerWireshark {
     {
         try
         {
+            Write-Verbose -Message "Attempting to pull info from the below URL: `n $URI"
             [xml]$xmlContent = Invoke-WebRequest -Uri $uri
         }
         catch
         {
+            Write-Verbose -Message "Error accessing the below URL: `n $URI"
             $message = $("Line {0} : {1}" -f $_.InvocationInfo.ScriptLineNumber, $_.exception.message)
             $swObject | Add-Member -MemberType NoteProperty -Name 'ERROR' -Value $message
         }
@@ -74,6 +72,7 @@ function Get-OnlineVerWireshark {
         {
             if ($XMLContent)
             {
+                Write-Verbose -Message 'Write to $swObject the newly gained information. Wireshark is pretty verbose information.'
                 $swObject.Online_Version = $XMLContent.XML_DIZ_INFO.Program_Info.Program_Version
                 $swObject.Online_Date = $XMLContent.XML_DIZ_INFO.Program_Info.Program_Release_Month + 
                                           '-' +
@@ -91,6 +90,7 @@ function Get-OnlineVerWireshark {
         # Output to Host
         if ($Quiet)
         {
+            Write-Verbose -Message '$Quiet was specified. Returning just the version'
             Return $swObject.Online_Version
         }
         else
