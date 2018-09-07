@@ -37,6 +37,7 @@
     to utilize within your environment. Search for "$Download_URL_x86" to add the Download URL into the script.
     Resources/Credits:
         https://www.reddit.com/r/PowerShell/comments/3tgr2m/get_current_versions_of_adobe_products/
+        https://fpdownload.macromedia.com/pub/flashplayer/masterversion/masterversion.xml
 #> 
 function Get-OnlineVerAdobeFlash
 {

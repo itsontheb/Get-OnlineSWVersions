@@ -31,6 +31,9 @@
     If -Quiet is specified then just the value of 'Online Version'
     will be displayed.
 .NOTES
+    Credit/Resources
+        AubergineHill - URLs
+            https://github.com/auberginehill/update-mozilla-firefox/blob/master/Update-MozillaFirefox.ps1
     Helpful URLs
         All Firefox Language Downloads
             https://www.mozilla.org/en-US/firefox/all/
@@ -38,6 +41,8 @@
             https://www.mozilla.org/en-US/firefox/organizations/
         Configure Firefox in the Enterprise
             https://support.mozilla.org/en-US/products/firefox-enterprise
+        Release History JSON
+            https://product-details.mozilla.org/1.0/firefox_history_stability_releases.json
 #>
 
 function Get-OnlineVerFirefox
