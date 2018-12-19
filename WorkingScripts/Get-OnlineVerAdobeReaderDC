@@ -1,0 +1,146 @@
+<#
+.Synopsis
+    Queries Adobe's Website for the current version of
+    Adobe Acrobat Reader DC and returns the version, date updated, and
+    download URLs if available.
+.DESCRIPTION
+    Utilizes [System.Net.FtpWebRequest] to query Adobe Acrobat Reader
+    DC's FTP Repository and pulls the version, update date and download
+    URLs for the only currently available version, x86. It then outputs 
+    the information as a PSObject to the Host.
+.EXAMPLE
+   PS C:\> Get-OnlineVerAdobeReaderDC -Quiet
+.INPUTS
+    -Quiet
+        Use of this parameter will output just the current version of
+        Adobe Acrobat Reader DC instead of the entire object. It will 
+        always be the last parameter.
+.OUTPUTS
+    An object containing the following:
+        Software Name: Name of the software
+        Software URL: The URL info was sourced from
+        Online Version: The current version found
+        Online Date: The date the version was updated
+        Download URL x86: Download URL for the win32 version
+        Download URL x64: Download URL for the win64 version
+    
+    If -Quiet is specified then just the value of 'Online Version'
+    will be displayed.
+.NOTES
+    Resources/Credits:
+    Helpful URLs:
+        Adobe Acrobat Reader DC FTP Repository
+            ftp://ftp.adobe.com/pub/adobe/reader/win/AcrobatDC/
+        FTP guidelines
+            https://www.opentechguides.com/how-to/article/powershell/154/directory-listing.html
+#>
+
+function Get-OnlineVerAdobeReaderDC
+{
+    [cmdletbinding()]
+    param (
+        [Parameter(Mandatory=$false, 
+                   Position=0)]
+        [switch]
+        $Quiet
+    )
+
+    begin
+    {
+        # Initial Variables
+        $SoftwareName = 'Adobe Acrobat Reader DC'
+        $URI = 'ftp://ftp.adobe.com/pub/adobe/reader/win/AcrobatDC/'
+        #$verRegex = '.\d.\d.\d'
+        #$dateRegex = '\d{4}-\d{2}-\d{2}'
+        #$desiredString = 'Release Date:'
+            
+        $hashtable = [ordered]@{
+            'Software_Name'    = $softwareName
+            'Software_URL'     = $uri
+            'Online_Version'   = 'UNKNOWN' 
+            'Online_Date'      = 'UNKNOWN'
+            'Download_URL_x86' = 'UNKNOWN'
+            'Download_URL_x64' = 'N/A'
+        }
+    
+        $swObject = New-Object -TypeName PSObject -Property $hashtable
+    }
+
+
+    Process
+    {
+        # Get Version Info
+        try
+        {
+            # Create an Instance of FtpWebRequest
+            $FTPRequest = [System.Net.FtpWebRequest]::Create($uri)
+
+            #Set method to ListDirectoryDetails to get full list
+            #For short listing change ListDirectoryDetails to ListDirectory
+            $FTPRequest.Method = [System.Net.WebRequestMethods+Ftp]::ListDirectoryDetails
+
+            #Get FTP response
+            $FTPResponse = $FTPRequest.GetResponse()
+
+            #Get Reponse data stream
+            $ResponseStream = $FTPResponse.GetResponseStream()
+
+            #Read data Stream
+            $StreamReader = New-Object System.IO.StreamReader $ResponseStream 
+
+            # Read each line of the stream and add it to an array list
+            $files = New-Object System.Collections.ArrayList
+            While ($file = $StreamReader.ReadLine())
+            {
+                [void]$files.Add("$file")
+            }
+
+            # Close the stream and response
+            $StreamReader.close()
+            $ResponseStream.close()
+            $FTPResponse.Close()
+
+        }
+        catch
+        {
+            Write-Verbose -Message "Error accessing the below URL: `n $URI"
+            $message = $("Line {0} : {1}" -f $_.InvocationInfo.ScriptLineNumber, $_.exception.message)
+            $swObject | Add-Member -MemberType NoteProperty -Name 'ERROR' -Value $message
+        }
+        finally
+        {
+            Write-Verbose -Message 'Write to $swObject the newly gained information.'
+            $LatestUpdate = ($files -split '[\r\n]' | Where {$_} | Select -Last 1 -Skip 1)
+            $version = ( $LatestUpdate -split '\s+')[-1]
+            
+            $swObject.Online_Version = $($version.Insert(2,'.')).Insert(6,'.')
+        }
+
+        # Download URL Portion
+        # Build file name
+        $LatestFile = "AcroRdrDCUpd" + $version + ".msp"
+        # Build download url for latest file
+        $swObject.Download_URL_x86 = $URI + $version + '/' + $LatestFile
+
+        # Online Date
+        $swObject.Online_Date = ($LatestUpdate -split '\s+')[-4, -3, -2] -join " "
+        if ($swObject.Online_Date -Match 'UNKNOWN')
+        {
+            $swObject.Online_Date = "$(Get-Date -Format FileDate)"
+        }
+    }
+
+    End
+    {
+        # Output to Host
+        if ($Quiet)
+        {
+            Write-Verbose -Message '$Quiet was specified. Returning just the version'
+            Return $swObject.Online_Version
+        }
+        else
+        {
+            Return $swobject
+        }
+    }
+} # END Function Get-OnlineVerAdobeReaderDC
