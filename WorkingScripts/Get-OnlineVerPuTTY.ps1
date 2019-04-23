@@ -73,7 +73,7 @@ function Get-OnlineVerPuTTY
             Write-Verbose -Message "Attempting to pull info from the below URL: `n $URI"
             $rawReq = Invoke-WebRequest -Uri $URI
 
-            $currentVersion = [regex]::match($html.ParsedHtml.title, $versionRegex).Groups[1]            
+            $currentVersion = [regex]::match($rawReq.ParsedHtml.title, $versionRegex).Groups[1]            
         }
         catch
         {
@@ -121,7 +121,7 @@ function Get-OnlineVerPuTTY
         if ($Quiet)
         {
             Write-Verbose -Message '$Quiet was specified. Returning just the version'
-            Return $swObject.Online_Version
+            Return $swObject.Online_Version.Value
         }
         else
         {
